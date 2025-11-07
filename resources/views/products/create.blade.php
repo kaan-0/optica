@@ -41,6 +41,12 @@
                 <textarea class="form-control" style="height:50px" name="detail" placeholder="Detail"></textarea>
             </div>
         </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Stock:</strong>
+                <input type="number" name="stock_actual" class="form-control" placeholder="Stock Actual">
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <button type="submit" class="btn btn-primary btn-sm mb-3 mt-2">
                 <i class="fa-solid fa-floppy-disk"></i> Enviar

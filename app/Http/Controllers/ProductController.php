@@ -34,6 +34,7 @@ class ProductController extends Controller
         request()->validate([
             'name' => 'required',
             'detail' => 'required',
+            'stock_actual' => 'required',
         ]);
 
         Product::create($request->all());
@@ -57,6 +58,7 @@ class ProductController extends Controller
         request()->validate([
             'name' => 'required',
             'detail' => 'required',
+            'stock_actual' => 'required',
         ]);
 
         $product->update($request->all());

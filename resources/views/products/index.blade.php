@@ -28,6 +28,7 @@
             <th>No</th>
             <th>Name</th>
             <th>Details</th>
+            <th>Stock</th>
             <th width="280px">Action</th>
         </tr>
         @foreach ($products as $product)
@@ -35,6 +36,7 @@
             <td>{{ ++$i }}</td>
             <td>{{ $product->name }}</td>
             <td>{{ $product->detail }}</td>
+            <td>{{ $product->stock_actual }}</td>
             <td>
                 <form action="{{ route('products.destroy',$product->id) }}" method="POST">
                     <a class="btn btn-info btn-sm" href="{{ route('products.show',$product->id) }}">

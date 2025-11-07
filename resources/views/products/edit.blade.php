@@ -42,6 +42,12 @@
                 <textarea class="form-control" style="height:150px" name="detail" placeholder="Detail">{{ $product->detail }}</textarea>
             </div>
         </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Stock:</strong>
+                <input type="number" name="stock_actual" value="{{ $product->stock_actual }}" class="form-control" placeholder="Stock Actual">
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <button type="submit" class="btn btn-primary btn-sm mb-2 mt-2">
                 <i class="fa-solid fa-floppy-disk"></i> Enviar
