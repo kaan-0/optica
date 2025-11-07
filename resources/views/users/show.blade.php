@@ -3,8 +3,8 @@
 @section('content')
 <div class="row mb-3">
     <div class="col-lg-12 d-flex justify-content-between align-items-center">
-        <h2>Show User</h2>
-        <a class="btn btn-primary btn-sm" href="{{ route('users.index') }}">Back</a>
+        <h2>Mostrar Usuario</h2>
+        <a class="btn btn-primary btn-sm" href="{{ route('users.index') }}">Regresar</a>
     </div>
 </div>
 
@@ -24,7 +24,7 @@
                 <span class="badge badge-success">{{ $role }}</span>
             @endforeach
         @else
-            <p>No Roles Assigned</p>
+            <p>No Roles Asignados</p>
         @endif
     </div>
 </div>

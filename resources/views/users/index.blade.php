@@ -3,10 +3,10 @@
 @section('content')
 <div class="row mb-3">
     <div class="col-lg-12 d-flex justify-content-between align-items-center">
-        <h2 class="mb-0">Users Management</h2>
+        <h2 class="mb-0">Administración Usuarios</h2>
         @can('role-create')
             <a class="btn btn-success btn-sm" href="{{ route('users.create') }}">
-                <i class="fa fa-plus"></i> Create New User
+                <i class="fa fa-plus"></i> Crear Nuevo Usuario
             </a>
         @endcan
     </div>
@@ -40,17 +40,17 @@
         </td>
         <td>
              <a class="btn btn-info btn-sm" href="{{ route('users.show',$user->id) }}">
-                 <i class="fa-solid fa-list"></i> Show
+                 <i class="fa-solid fa-list"></i> Mostrar
              </a>
              <a class="btn btn-primary btn-sm" href="{{ route('users.edit',$user->id) }}">
-                 <i class="fa-solid fa-pen-to-square"></i> Edit
+                 <i class="fa-solid fa-pen-to-square"></i> Editar
              </a>
               <form method="POST" action="{{ route('users.destroy', $user->id) }}" style="display:inline">
                   @csrf
                   @method('DELETE')
 
                   <button type="submit" class="btn btn-danger btn-sm">
-                      <i class="fa-solid fa-trash"></i> Delete
+                      <i class="fa-solid fa-trash"></i> Borrar
                   </button>
               </form>
         </td>

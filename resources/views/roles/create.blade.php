@@ -3,16 +3,16 @@
 @section('content')
 <div class="row mb-3">
     <div class="col-lg-12 d-flex justify-content-between align-items-center">
-        <h2>Create New Role</h2>
+        <h2>Crear Nuevo rol</h2>
         <a class="btn btn-primary btn-sm" href="{{ route('roles.index') }}">
-            <i class="fa fa-arrow-left"></i> Back
+            <i class="fa fa-arrow-left"></i> Regresar
         </a>
     </div>
 </div>
 
 @if ($errors->any())
     <div class="alert alert-danger">
-        <strong>Whoops!</strong> There were some problems with your input.<br><br>
+        <strong>Vaya!</strong> Algo salió mal.<br><br>
         <ul>
         @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
@@ -39,7 +39,7 @@
         </div>
         <div class="col-12 text-center">
             <button type="submit" class="btn btn-primary btn-sm">
-                <i class="fa-solid fa-floppy-disk"></i> Submit
+                <i class="fa-solid fa-floppy-disk"></i> Enviar
             </button>
         </div>
     </div>

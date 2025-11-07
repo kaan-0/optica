@@ -3,8 +3,8 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-lg-12 d-flex justify-content-between align-items-center">
-        <h2>Show Role</h2>
-        <a class="btn btn-primary" href="{{ route('roles.index') }}">Back</a>
+        <h2>Mostrar Roles</h2>
+        <a class="btn btn-primary" href="{{ route('roles.index') }}">Regresar</a>
     </div>
 </div>
 
