@@ -31,6 +31,12 @@
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
+                <strong>Código:</strong>
+                <input type="text" name="product_code" class="form-control" placeholder="Codigo">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
                 <strong>Name:</strong>
                 <input type="text" name="name" class="form-control" placeholder="Name">
             </div>
@@ -38,13 +44,19 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Detail:</strong>
-                <textarea class="form-control" style="height:50px" name="detail" placeholder="Detail"></textarea>
+                <textarea class="form-control" style="height:25px" name="detail" placeholder="Detail"></textarea>
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
-                <strong>Stock:</strong>
-                <input type="number" name="stock_actual" class="form-control" placeholder="Stock Actual">
+                <strong>Stock Tienda:</strong>
+                <input type="number" name="stock_tienda" class="form-control" placeholder="Stock Tienda">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Stock Bodega:</strong>
+                <input type="number" name="stock_bodega" class="form-control" placeholder="Stock Bodega">
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">

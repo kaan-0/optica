@@ -33,8 +33,10 @@ class ProductController extends Controller
     {
         request()->validate([
             'name' => 'required',
+            'product_code' => 'required',
             'detail' => 'required',
-            'stock_actual' => 'required',
+            'stock_tienda' => 'required',
+            'stock_bodega' => 'required',
             'price' => 'required'
         ]);
 
@@ -58,8 +60,10 @@ class ProductController extends Controller
     {
         request()->validate([
             'name' => 'required',
+            'product_code' => 'required',
             'detail' => 'required',
-            'stock_actual' => 'required',
+            'stock_tienda' => 'required',
+            'stock_bodega' => 'required',
             'price' => 'required'
         ]);
 

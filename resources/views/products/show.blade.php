@@ -15,6 +15,12 @@
 <div class="row mt-3">
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
+            <strong>Codigo:</strong>
+            {{ $product->product_code }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
             <strong>Name:</strong>
             {{ $product->name }}
         </div>
@@ -27,8 +33,14 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
-            <strong>Stock:</strong>
-            {{ $product->stock_actual }}
+            <strong>Stock Tienda:</strong>
+            {{ $product->stock_tienda }}
+        </div>
+    </div>
+    div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Stock Bodega:</strong>
+            {{ $product->stock_bodega }}
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">

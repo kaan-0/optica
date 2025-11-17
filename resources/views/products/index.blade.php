@@ -26,18 +26,22 @@
     <table class="table table-bordered">
         <tr>
             <th>No</th>
+            <th>Codigo</th>
             <th>Name</th>
             <th>Details</th>
-            <th>Stock</th>
+            <th>Stock Tienda</th>
+            <th>Stock Bodega</th>
             <th>Price</th>
             <th width="280px">Action</th>
         </tr>
         @foreach ($products as $product)
         <tr>
             <td>{{ ++$i }}</td>
+            <td>{{ $product->product_code }}</td>
             <td>{{ $product->name }}</td>
             <td>{{ $product->detail }}</td>
-            <td>{{ $product->stock_actual }}</td>
+            <td>{{ $product->stock_tienda }}</td>
+            <td>{{ $product->stock_bodega }}</td>
             <td>{{ $product->price }}</td>
             <td>
                 <form action="{{ route('products.destroy',$product->id) }}" method="POST">
