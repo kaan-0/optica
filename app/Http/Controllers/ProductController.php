@@ -35,6 +35,7 @@ class ProductController extends Controller
             'name' => 'required',
             'detail' => 'required',
             'stock_actual' => 'required',
+            'price' => 'required'
         ]);
 
         Product::create($request->all());
@@ -59,6 +60,7 @@ class ProductController extends Controller
             'name' => 'required',
             'detail' => 'required',
             'stock_actual' => 'required',
+            'price' => 'required'
         ]);
 
         $product->update($request->all());

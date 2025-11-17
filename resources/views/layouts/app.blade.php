@@ -50,9 +50,20 @@
                                 </li>
                             @endif
                         @else
+                            {{-- Enlaces visibles para usuarios autenticados --}}
                             <li><a class="nav-link" href="{{ route('users.index') }}">Administrar Usuarios</a></li>
                             <li><a class="nav-link" href="{{ route('roles.index') }}">Roles</a></li>
+                            
+                            {{-- MÓDULO DE INVENTARIO --}}
                             <li><a class="nav-link" href="{{ route('products.index') }}">Productos</a></li>
+                            
+                            {{-- 👥 NUEVO MÓDULO DE PACIENTES --}}
+                            <li>
+                                <a class="nav-link" href="{{ route('patients.index') }}">
+                                    Pacientes
+                                </a>
+                            </li>
+
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" 
                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>

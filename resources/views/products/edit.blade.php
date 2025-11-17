@@ -48,6 +48,12 @@
                 <input type="number" name="stock_actual" value="{{ $product->stock_actual }}" class="form-control" placeholder="Stock Actual">
             </div>
         </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Price:</strong>
+                <input type="number" name="price" value="{{ $product->price }}" class="form-control" placeholder="Precio">
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">
             <button type="submit" class="btn btn-primary btn-sm mb-2 mt-2">
                 <i class="fa-solid fa-floppy-disk"></i> Enviar

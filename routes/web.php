@@ -6,8 +6,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PatientController;
 
-// Redirect root URL to /home if logged in, or to login otherwise
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('home');
@@ -26,4 +26,5 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
     Route::resource('products', ProductController::class);
+    Route::resource('patients', PatientController::class);
 });
