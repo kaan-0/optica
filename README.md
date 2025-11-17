@@ -57,3 +57,46 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+*Laravel commands*
+
+composer require spatie/laravel-permission
+
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+
+php artisan migrate
+
+php artisan make:model Product -m
+
+php artisan migrate  
+
+composer require laravel/ui
+
+php artisan ui bootstrap --auth
+
+npm install
+
+//in case last command throws an error
+
+	nvm install 20.19.0
+
+	npm install -g patch-package
+
+	npm install  
+	
+	nom run build
+
+php artisan make:controller UserController
+
+php artisan make:controller ProductController
+
+php artisan make:controller RoleController
+
+php artisan make:seeder PermissionTableSeeder
+
+php artisan db:seed --class=PermissionTableSeeder
+
+php artisan make:seeder CreateAdminUserSeeder
+
+php artisan db:seed --class=CreateAdminUserSeeder
+
