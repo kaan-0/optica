@@ -21,14 +21,32 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
-            <strong>Name:</strong>
+            <strong>Nombre:</strong>
             {{ $product->name }}
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
-            <strong>Details:</strong>
+            <strong>Detalles:</strong>
             {{ $product->detail }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Marca:</strong>
+            {{ $product->marca }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Material:</strong>
+            {{ $product->material }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Color:</strong>
+            {{ $product->color }}
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -37,7 +55,7 @@
             {{ $product->stock_tienda }}
         </div>
     </div>
-    div class="col-xs-12 col-sm-12 col-md-12">
+    <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
             <strong>Stock Bodega:</strong>
             {{ $product->stock_bodega }}
@@ -45,8 +63,20 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
-            <strong>Price:</strong>
+            <strong>Precio venta:</strong>
             {{ $product->price }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Precio compra:</strong>
+            {{ $product->precio_compra }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Total:</strong>
+            {{ $product->stock_bodega + $product->stock_tienda }}
         </div>
     </div>
 </div>

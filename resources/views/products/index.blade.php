@@ -27,11 +27,16 @@
         <tr>
             <th>No</th>
             <th>Codigo</th>
-            <th>Name</th>
-            <th>Details</th>
+            <th>Nombre</th>
+            <th>Detalles</th>
+            <th>Marca</th>
+            <th>Material</th>
+            <th>Color</th>
             <th>Stock Tienda</th>
             <th>Stock Bodega</th>
-            <th>Price</th>
+            <th>Precio de venta</th>
+            <th>Precio de compra</th>
+            <th>Total</th>
             <th width="280px">Action</th>
         </tr>
         @foreach ($products as $product)
@@ -40,9 +45,14 @@
             <td>{{ $product->product_code }}</td>
             <td>{{ $product->name }}</td>
             <td>{{ $product->detail }}</td>
+            <td>{{ $product->marca }}</td>
+            <td>{{ $product->material }}</td>
+            <td>{{ $product->color }}</td>
             <td>{{ $product->stock_tienda }}</td>
             <td>{{ $product->stock_bodega }}</td>
             <td>{{ $product->price }}</td>
+            <td>{{ $product->precio_compra }}</td>
+            <td>{{ $product->stock_tienda + $product->stock_bodega }}</td>
             <td>
                 <form action="{{ route('products.destroy',$product->id) }}" method="POST">
                     <a class="btn btn-info btn-sm" href="{{ route('products.show',$product->id) }}">

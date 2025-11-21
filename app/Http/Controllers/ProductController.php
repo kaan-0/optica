@@ -34,10 +34,14 @@ class ProductController extends Controller
         request()->validate([
             'name' => 'required',
             'product_code' => 'required',
-            'detail' => 'required',
+            'detail',
             'stock_tienda' => 'required',
             'stock_bodega' => 'required',
-            'price' => 'required'
+            'price' => 'required',
+            'marca',
+            'material',
+            'color',
+            'precio_venta'
         ]);
 
         Product::create($request->all());
@@ -61,10 +65,14 @@ class ProductController extends Controller
         request()->validate([
             'name' => 'required',
             'product_code' => 'required',
-            'detail' => 'required',
+            'detail',
             'stock_tienda' => 'required',
             'stock_bodega' => 'required',
-            'price' => 'required'
+            'price' => 'required',
+            'marca',
+            'material',
+            'color',
+            'precio_venta'
         ]);
 
         $product->update($request->all());

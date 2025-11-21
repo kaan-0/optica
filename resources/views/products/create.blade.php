@@ -37,14 +37,32 @@
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
-                <strong>Name:</strong>
-                <input type="text" name="name" class="form-control" placeholder="Name">
+                <strong>Nombre:</strong>
+                <input type="text" name="name" class="form-control" placeholder="Nombre">
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
-                <strong>Detail:</strong>
-                <textarea class="form-control" style="height:25px" name="detail" placeholder="Detail"></textarea>
+                <strong>Detalle:</strong>
+                <textarea class="form-control" style="height:25px" name="detail" placeholder="Detalle"></textarea>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Marca:</strong>
+                <textarea class="form-control" style="height:25px" name="marca" placeholder="Marca"></textarea>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Material:</strong>
+                <textarea class="form-control" style="height:25px" name="material" placeholder="Material"></textarea>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Color:</strong>
+                <textarea class="form-control" style="height:25px" name="color" placeholder="Color"></textarea>
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -61,8 +79,14 @@
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
-                <strong>Price:</strong>
+                <strong>Precio venta:</strong>
                 <input type="number" name="price" class="form-control" placeholder="Precio">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Precio Compra:</strong>
+                <input type="number" name="precio_compra" class="form-control" placeholder="Precio">
             </div>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 text-center">

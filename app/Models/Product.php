@@ -12,6 +12,10 @@ class Product extends Model
         'detail',
         'stock_tienda',
         'stock_bodega',
-        'price'
+        'price',
+        'marca',
+        'material',
+        'color',
+        'precio_compra'
     ];
 }
