@@ -30,32 +30,45 @@ class ProductController extends Controller
     // }
     // En app/Http/Controllers/ProductController.php
 
-public function index(Request $request): View
+// En app/Http/Controllers/ProductController.php
+
+public function index(Request $request)
 {
-    // Obtener el término de búsqueda de la solicitud (si existe)
-    $search = $request->query('search');
+    // Obtener parámetros de la URL
+    $search = $request->input('search');
+    $sort = $request->input('sort', 'id'); // Columna por defecto para ordenar
+    $direction = $request->input('direction', 'desc'); // Dirección por defecto
 
-    // Iniciar la consulta a los productos, cargando la relación categoria
-    $productsQuery = Product::with('categoria');
+    // Validar columnas permitidas
+    $allowedSorts = ['id', 'product_code', 'name', 'precio_venta', 'precio_compra'];
 
-    // Si hay un término de búsqueda, aplicar el filtro
+    // Manejar ordenamiento por categoría (relación)
+    if ($sort === 'category') {
+        $products = Product::join('categorias', 'products.id_categoria', '=', 'categorias.id')
+            ->select('products.*', 'categorias.nombre as category_name')
+            ->orderBy('category_name', $direction);
+    } elseif (in_array($sort, $allowedSorts)) {
+        // Ordenar por una columna directa de la tabla products
+        $products = Product::orderBy($sort, $direction);
+    } else {
+        // Orden por defecto si la columna no es válida
+        $products = Product::latest();
+    }
+
+
+    // Aplicar filtro de búsqueda
     if ($search) {
-        $productsQuery->where(function ($query) use ($search) {
-            $query->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('product_code', 'LIKE', "%{$search}%")
-                  ->orWhere('detail', 'LIKE', "%{$search}%");
+        $products->where(function($query) use ($search) {
+            $query->where('product_code', 'LIKE', '%' . $search . '%')
+                  ->orWhere('name', 'LIKE', '%' . $search . '%')
+                  ->orWhere('detail', 'LIKE', '%' . $search . '%');
         });
     }
 
-    // Paginar los resultados y adjuntar el parámetro 'search' a la URL
-    $products = $productsQuery->paginate(10)->withQueryString();
+    // Paginar los resultados. Mantener la búsqueda y el ordenamiento en la URL de paginación
+    $products = $products->paginate(10)->withQueryString();
 
-    // Calcular el índice
-    $i = ($products->currentPage() - 1) * $products->perPage();
-    
-    // Pasar el término de búsqueda de vuelta a la vista para rellenar el campo
-    return view('products.index', compact('products', 'search'))
-        ->with('i', $i);
+    return view('products.index', compact('products', 'search'));
 }
 
     public function create(): View

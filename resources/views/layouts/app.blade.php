@@ -23,7 +23,7 @@
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    Óptica SJ
+                    Óptica San José
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
@@ -50,9 +50,11 @@
                                 </li>
                             @endif
                         @else
+                        @if (Auth::user()->hasRole('Admin'))
                             {{-- Enlaces visibles para usuarios autenticados --}}
                             <li><a class="nav-link" href="{{ route('users.index') }}">Administrar Usuarios</a></li>
                             <li><a class="nav-link" href="{{ route('roles.index') }}">Roles</a></li>
+                        @endif    
                             
                             {{-- MÓDULO DE INVENTARIO --}}
                             <li><a class="nav-link" href="{{ route('products.index') }}">Productos</a></li>

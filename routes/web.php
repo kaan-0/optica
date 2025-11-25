@@ -23,8 +23,13 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // Protected routes (only accessible when logged in)
 Route::middleware(['auth'])->group(function () {
-    Route::resource('roles', RoleController::class);
-    Route::resource('users', UserController::class);
+    // Route::resource('roles', RoleController::class);
+    // Route::resource('users', UserController::class);
     Route::resource('products', ProductController::class);
     Route::resource('patients', PatientController::class);
 });
+
+Route::middleware(['role:Admin'])->group(function () {
+        Route::resource('users', App\Http\Controllers\UserController::class);
+        Route::resource('roles', App\Http\Controllers\RoleController::class);
+    });

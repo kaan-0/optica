@@ -41,20 +41,42 @@
 <div class="table-responsive">
     <table class="table table-bordered table-striped align-middle">
         <thead class="table-dark">
-            <tr>
-                <th>No</th>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Detalles</th>
-                <th>Stock Tienda</th>
-                <th>Stock Bodega</th>
-                <th>Precio Venta</th>
-                <th>Precio Compra</th>
-                <th>Total</th>
-                <th width="250px">Acciones</th>
-            </tr>
-        </thead>
+    <tr>
+        <th>No</th>
+        <th>
+            <a href="{{ route('products.index', ['sort' => 'product_code', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}" class="text-white text-decoration-none">
+                Código
+                {{-- Indicador de dirección de ordenamiento --}}
+                @if (request('sort') == 'product_code')
+                    <i class="fa-solid fa-arrow-{{ request('direction') == 'asc' ? 'up' : 'down' }} ms-1"></i>
+                @endif
+            </a>
+        </th>
+        <th>
+            <a href="{{ route('products.index', ['sort' => 'name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}" class="text-white text-decoration-none">
+                Nombre
+                @if (request('sort') == 'name')
+                    <i class="fa-solid fa-arrow-{{ request('direction') == 'asc' ? 'up' : 'down' }} ms-1"></i>
+                @endif
+            </a>
+        </th>
+        <th>
+            <a href="{{ route('products.index', ['sort' => 'category', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}" class="text-white text-decoration-none">
+                Categoría
+                @if (request('sort') == 'category')
+                    <i class="fa-solid fa-arrow-{{ request('direction') == 'asc' ? 'up' : 'down' }} ms-1"></i>
+                @endif
+            </a>
+        </th>
+        <th>Detalles</th>
+        <th>Stock Tienda</th>
+        <th>Stock Bodega</th>
+        <th>Precio Venta</th>
+        <th>Precio Compra</th>
+        <th>Total</th>
+        <th width="250px">Acciones</th>
+    </tr>
+</thead>
 
         <tbody>
         @foreach ($products as $product)
@@ -105,6 +127,8 @@
         </tbody>
     </table>
 </div>
-
+<div class="d-flex justify-content-center">
+    {!! $products->links('pagination::bootstrap-5') !!}
+</div>
 
 @endsection
