@@ -25,6 +25,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::middleware(['auth'])->group(function () {
     // Route::resource('roles', RoleController::class);
     // Route::resource('users', UserController::class);
+    Route::get('products/export', [ProductController::class, 'export'])->name('products.export');
     Route::resource('products', ProductController::class);
     Route::resource('patients', PatientController::class);
 });
@@ -33,3 +34,5 @@ Route::middleware(['role:Admin'])->group(function () {
         Route::resource('users', App\Http\Controllers\UserController::class);
         Route::resource('roles', App\Http\Controllers\RoleController::class);
     });
+
+    

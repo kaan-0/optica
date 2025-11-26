@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ProductsExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -264,4 +267,13 @@ public function index(Request $request)
         return redirect()->route('products.index')
             ->with('success', 'Producto eliminado!');
     }
+
+    public function export()
+{
+    $fileName = 'Inventario_Optica_' . now()->format('Ymd') . '.xlsx';
+
+    // Dispara la descarga usando la clase ProductsExport
+    return Excel::download(new ProductsExport, $fileName);
+}
+
 }
