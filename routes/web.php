@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\InvoiceController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -25,9 +26,14 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::middleware(['auth'])->group(function () {
     // Route::resource('roles', RoleController::class);
     // Route::resource('users', UserController::class);
+    Route::get('products/search', [App\Http\Controllers\ProductController::class, 'search'])->name('products.search');
     Route::get('products/export', [ProductController::class, 'export'])->name('products.export');
     Route::resource('products', ProductController::class);
     Route::resource('patients', PatientController::class);
+
+    
+
+    
 });
 
 Route::middleware(['role:Admin'])->group(function () {
@@ -35,4 +41,7 @@ Route::middleware(['role:Admin'])->group(function () {
         Route::resource('roles', App\Http\Controllers\RoleController::class);
     });
 
+    Route::resource('invoices', InvoiceController::class);
+
+    Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
     

@@ -276,4 +276,16 @@ public function index(Request $request)
     return Excel::download(new ProductsExport, $fileName);
 }
 
+public function search(Request $request)
+{
+    $query = $request->get('query');
+
+    // Busca productos que coincidan con el código o nombre
+    $products = Product::where('product_code', 'LIKE', "%{$query}%")
+                       ->orWhere('name', 'LIKE', "%{$query}%")
+                       ->get(['id', 'product_code', 'name', 'precio_venta']);
+    
+    return response()->json($products);
+}
+
 }

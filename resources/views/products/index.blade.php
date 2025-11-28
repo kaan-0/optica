@@ -5,6 +5,7 @@
     <div class="col-lg-12 margin-tb d-flex justify-content-between align-items-center mb-3"> 
         <h2>Productos</h2> 
         <div class="d-flex gap-2">
+            
             {{-- BOTÓN DE DESCARGA DE REPORTE --}}
             <a class="btn btn-primary btn-sm" href="{{ route('products.export') }}">
                 <i class="fa-solid fa-file-excel"></i> Descargar Inventario

@@ -54,6 +54,8 @@
                             {{-- Enlaces visibles para usuarios autenticados --}}
                             <li><a class="nav-link" href="{{ route('users.index') }}">Administrar Usuarios</a></li>
                             <li><a class="nav-link" href="{{ route('roles.index') }}">Roles</a></li>
+                            {{-- MÓDULO DE FACTURAS --}}
+                            <li><a class="nav-link" href="{{ route('invoices.index') }}">Facturas</a></li>
                         @endif    
                             
                             {{-- MÓDULO DE INVENTARIO --}}
@@ -65,6 +67,7 @@
                                     Pacientes
                                 </a>
                             </li>
+                            
 
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" 
