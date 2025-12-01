@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Models\DetallesAros;
 use App\Models\DetallesLentes;
 use App\Models\DetallesLentesTerminados;
+use App\Models\Category;
 
 class ProductController extends Controller
 {
@@ -76,7 +77,9 @@ public function index(Request $request)
 
     public function create(): View
     {
-        return view('products.create');
+        $categorias = Category::all();
+
+        return view('products.create', compact('categorias'));
     }
 
     public function store(Request $request): RedirectResponse

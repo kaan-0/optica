@@ -17,6 +17,8 @@ class Invoice extends Model
         'discount_amount',// Monto del descuento (Nuevo campo)
         'tax_amount',     // Impuestos
         'total_amount',   // Total final
+        'is_cancelled', //factura cancelada
+        'cancellation_reason',
         'date',           // Fecha de emisión
     ];
 

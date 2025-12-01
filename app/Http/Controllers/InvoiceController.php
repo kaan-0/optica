@@ -86,21 +86,35 @@ class InvoiceController extends Controller
             'date' => now(),
         ]);
 
+            $ID_CONSULTA=7;
+            
+
             // 2. PROCESAR ÍTEMS Y APLICAR LÓGICA DE STOCK INTELIGENTE
             foreach ($request->items as $item) {
+
                 $product = Product::find($item['product_id']);
                 $quantity = $item['quantity'];
                 $price = $item['price_at_sale'];
+
+                //obtener categoria para no rebajar consulta de inventario
+                $product->load('categoria');
+
+
+                $descontado_tienda = 0;
+                $descontado_bodega = 0;
                 
                 $totalStock = $product->stock_tienda + $product->stock_bodega;
 
-                if ($totalStock < $quantity) {
+                if($product->id_categoria == $ID_CONSULTA){
+                    //no rebajamos consulta de inventario
+
+                }else{
+
+                    if ($totalStock < $quantity) {
                     DB::rollBack();
                     return back()->with('error', "Stock total insuficiente para {$product->name}. Disponible: {$totalStock}")->withInput();
                 }
 
-                $descontado_tienda = 0;
-                $descontado_bodega = 0;
 
                 // Lógica de Prioridad: Tienda -> Bodega
                 
@@ -120,6 +134,10 @@ class InvoiceController extends Controller
 
                 // Guardar los cambios de stock
                 $product->save();
+
+                }
+
+                
 
                 // 3. CREAR EL DETALLE DE LA FACTURA (InvoiceItem)
                 $invoice->items()->create([
@@ -167,6 +185,57 @@ public function download(Invoice $invoice)
     return $pdf->download($fileName);
 }
 
+public function cancel (Request $request, Invoice $invoice){
+
+    if ($invoice->is_cancelled) {
+        return back()->with('error', 'Esta factura ya está anulada.');
+    }
+
+    $request->validate([
+        'reason' => 'required|string|max:200'
+    ]);
+
+    DB::beginTransaction();
+    try {
+        // 2. REVERSAR EL STOCK
+        // Recorre todos los ítems de la factura
+        foreach ($invoice->items as $item) {
+            $product = $item->product; 
+
+            if (!$product) {
+                 // Si el producto fue eliminado, registra el error pero continúa.
+                 // Para fines de stock, esta línea podría generar un error si el producto no existe.
+                 continue; 
+            }
+
+            // Devolver stock a la tienda
+            $product->stock_tienda += $item->stock_tienda_descontado;
+            
+            // Devolver stock a la bodega
+            $product->stock_bodega += $item->stock_bodega_descontado;
+            
+            $product->save();
+            
+            // Opcional: Para mayor trazabilidad, puedes actualizar el item para marcarlo como revertido.
+        }
+
+        // 3. MARCAR LA FACTURA COMO ANULADA
+        $invoice->is_cancelled = true;// o 1
+        $invoice->cancellation_reason = $request->reason;
+        $invoice->save();
+
+        DB::commit();
+        
+        return redirect()->route('invoices.show', $invoice)->with('success', 
+            "Factura #{$invoice->invoice_number} ha sido ANULADA. El stock ha sido revertido correctamente."
+        );
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error al anular la factura y revertir stock: ' . $e->getMessage());
+    }
+
+}
 
 
     

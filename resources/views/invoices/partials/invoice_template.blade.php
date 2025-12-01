@@ -1,18 +1,60 @@
-{{-- resources/views/invoices/partials/invoice_template.blade.php --}}
+<?php
+// Obtener la ruta absoluta del archivo en el servidor
+$path = public_path('images/logo.png'); 
+// Verificar si el archivo existe para evitar errores
+if (file_exists($path)) {
+    // Leer el archivo y codificarlo en Base64
+    $type = pathinfo($path, PATHINFO_EXTENSION);
+    $data = file_get_contents($path);
+    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+} else {
+    $base64 = ''; // Dejar vacío si la imagen no se encuentra
+}
+?>
 
-<div class="invoice-container border p-4">
+<div class="invoice-container border p-4" style="position: relative;">
     <div class="header row mb-4">
-        <div class="col-6">
-            <h3>Óptica San José</h3>
-            {{-- <p>RTN: 123456789</p> --}}
-            <p>Dirección: Unicentro, Nacaome, Valle</p>
-        </div>
-        <div class="col-6 text-end">
-            <h4>FACTURA</h4>
-            <p>No: <strong>{{ $invoice->invoice_number }}</strong></p>
-            <p>Fecha: {{ $invoice->date }}</p>
-        </div>
+    <div class="col-6">
+        @if ($base64)
+            <img src="{{ $base64 }}" 
+                 alt="Logo Óptica San José" 
+                 style="max-width: 200px; height: auto;">
+        @else
+            <h3>Centro Oftalmológico y Óptica San José</h3>
+        @endif
+        
+        <p>Dirección: Centro Comercial Unicentro, Nacaome, Valle</p>
+        <p>RTN:  17011988016903</p>
+        <p>Teléfono: 9389-7445</p>
     </div>
+    <div class="col-6 text-end">
+        <h4>COMPROBANTE</h4>
+        <p style="font-size: 0.8rem; color: gray;">DOCUMENTO NO FISCAL</p>
+        <p>No: <strong>{{ $invoice->invoice_number }}</strong></p>
+        <p>Fecha: {{ $invoice->date }}</p>
+        
+    </div>
+    
+</div>
+@if ($invoice->is_cancelled)
+        <div style="
+        position: absolute; 
+        top: 150px; 
+        left: 15%; 
+        width: 70%; 
+        height: 50px; 
+        text-align: center; 
+        z-index: 1000; 
+        opacity: 0.5;
+        transform: rotate(-25deg); 
+       
+        padding: 10px;
+        font-size: 4em; 
+        font-weight: bold; 
+        color: red;">
+        FACTURA ANULADA
+    </div>
+    @endif
 
     <hr>
 

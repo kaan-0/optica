@@ -42,6 +42,7 @@ Route::middleware(['role:Admin'])->group(function () {
     });
 
     Route::resource('invoices', InvoiceController::class);
+    Route::post('invoices/{invoice}/cancel', [App\Http\Controllers\InvoiceController::class, 'cancel'])->name('invoices.cancel');
 
     Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
     
