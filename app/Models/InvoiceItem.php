@@ -15,6 +15,8 @@ class InvoiceItem extends Model
         'quantity',
         'price_at_sale',
         'line_total',
+        'discount_rate',
+        'discount_amount',
         'stock_tienda_descontado',
         'stock_bodega_descontado',
     ];

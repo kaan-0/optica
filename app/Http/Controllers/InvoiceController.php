@@ -27,139 +27,133 @@ class InvoiceController extends Controller
     public function store(Request $request)
     {
         
+        // 1. VALIDACIÓN
         $request->validate([
-            'client_name' => 'required|string',
-            //'invoice_number' => 'required|unique:invoices,invoice_number',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'client_id_card' => 'nullable|string|max:20',
-            'discount_rate' => 'nullable|numeric|min:0|max:100',
-            'discount_amount' => 'nullable|numeric|min:0',
-            'total_amount' => 'required|numeric',
-            'tax_amount' => 'required|numeric',
-            
-        ]);
+        'client_name' => 'required|string',
+        'items' => 'required|array|min:1',
+        'items.*.product_id' => 'required|exists:products,id',
+        'items.*.quantity' => 'required|integer|min:1',
+        'items.*.discount_rate' => 'required|numeric|min:0|max:100', // Descuento individual
+        'items.*.price_at_sale' => 'required|numeric|min:0', // Aseguramos que el precio venga
+        'client_id_card' => 'nullable|string|max:20',
+        'discount_amount' => 'required|numeric|min:0', // Total acumulado del frontend
+        'total_amount' => 'required|numeric', // Total final del frontend
+        'tax_amount' => 'required|numeric', // ISV total del frontend
+    ]);
         
         DB::beginTransaction();
 
         try {
-            // 1. CREAR LA FACTURA (CABECERA)
-            // Lógica simple para calcular total (ajusta si tienes impuestos o descuentos)
-            $lastInvoice = Invoice::orderBy('id', 'desc')->first();
-
-            $lastNumber = $lastInvoice 
-                      ? intval(substr($lastInvoice->invoice_number, 4)) // Si existe, toma el número después del prefijo 'FAC-'
-                      : 0; // Si no existe, inicia en 0
-        
+            
+            // 2. GENERAR NÚMERO DE FACTURA
+        $lastInvoice = Invoice::orderBy('id', 'desc')->first();
+        $lastNumber = $lastInvoice ? intval(substr($lastInvoice->invoice_number, 4)) : 0;
         $newNumber = $lastNumber + 1;
-        
-        // Formatear: Rellenar con ceros a la izquierda (ej: 0001, 0010, 0100)
         $invoiceNumber = 'FAC-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
 
-        // --- CÁLCULO DE TOTALES (Servidor) ---
+        // --- INICIALIZACIÓN DE ACUMULADORES ---
         $ISV_RATE = 0.15;
+        $totalSubtotalSum = 0; // Subtotal BRUTO (sin descuento)
+        $totalDiscountSum = 0; // Suma de descuentos por línea
+        $totalTaxAmountSum = 0; // Suma de ISV por línea
+        $totalFinalSum = 0; // Suma del Total Final por línea (Grand Total)
 
-        $subtotal = collect($request->items)->sum(fn($item) => $item['price_at_sale'] * $item['quantity']);
-        
-        // 2. USAR VALORES CALCULADOS DEL JS (enviados en campos ocultos)
-        $discount_amount = (float)$request->discount_amount;
-                // 3. BASE IMPONIBLE (Total Gravado)
-            $taxable_base = $subtotal - $discount_amount;
-            $taxable_base = $taxable_base / 1.15;
-            if ($taxable_base < 0) $taxable_base = 0;
-            
-            // 4. ISV 15%
-            $tax_amount = round($taxable_base * $ISV_RATE, 2); // Redondeo a 2 decimales para precisión fiscal
-            
-            // 5. TOTAL FINAL
-            $grand_total = $taxable_base + $tax_amount;
-            
-           $invoice = Invoice::create([
-            'invoice_number' => $invoiceNumber,
-            'client_name' => $request->client_name,
-            'client_id_card' => $request->client_id_card,
-            'subtotal' => $subtotal, // Subtotal recalculado
-            'discount_amount' => $discount_amount, // <-- MONTO CALCULADO PORCENTUAL
-            'tax_amount' => $tax_amount,
-            'total_amount' => $grand_total, // <-- TOTAL FINAL DEL JS
-            'date' => now(),
-        ]);
-
-            $ID_CONSULTA=7;
+        $ID_CONSULTA = 7;
+        $processedItems = []; // Array para almacenar los ítems antes de crear la factura
             
 
-            // 2. PROCESAR ÍTEMS Y APLICAR LÓGICA DE STOCK INTELIGENTE
-            foreach ($request->items as $item) {
+            /// 3. PROCESAR ÍTEMS, CALCULAR TOTALES y APLICAR LÓGICA DE STOCK
+        foreach ($request->items as $item) {
 
-                $product = Product::find($item['product_id']);
-                $quantity = $item['quantity'];
-                $price = $item['price_at_sale'];
+            $product = Product::find($item['product_id']);
+            $quantity = $item['quantity'];
+            $price = $item['price_at_sale'];
+            $discountRate = $item['discount_rate'];
+            
+            $product->load('categoria');
 
-                //obtener categoria para no rebajar consulta de inventario
-                $product->load('categoria');
+            // --- CÁLCULO DE LÍNEA (VALIDACIÓN EN SERVIDOR) ---
 
+            $lineSubtotalGross = $quantity * $price;
+            $lineDiscountAmount = round($lineSubtotalGross * ($discountRate / 100), 2);
+            $lineTotalDiscountedGross = $lineSubtotalGross - $lineDiscountAmount;
+            
+            // Cálculo fiscal para Base Imponible (Neto sin ISV)
+            $lineBaseImponible = round($lineTotalDiscountedGross / (1 + $ISV_RATE), 2);
+            $lineTaxAmount = round($lineTotalDiscountedGross - $lineBaseImponible, 2);
+            
+            // ACUMULAR TOTALES GENERALES
+            $totalSubtotalSum += $lineSubtotalGross;
+            $totalDiscountSum += $lineDiscountAmount;
+            $totalTaxAmountSum += $lineTaxAmount;
+            $totalFinalSum += $lineTotalDiscountedGross;
+            // --- LÓGICA DE STOCK ---
+            $descontado_tienda = 0;
+            $descontado_bodega = 0;
 
-                $descontado_tienda = 0;
-                $descontado_bodega = 0;
+            if ($product->id_categoria != $ID_CONSULTA) {
                 
                 $totalStock = $product->stock_tienda + $product->stock_bodega;
 
-                if($product->id_categoria == $ID_CONSULTA){
-                    //no rebajamos consulta de inventario
-
-                }else{
-
-                    if ($totalStock < $quantity) {
+                if ($totalStock < $quantity) {
                     DB::rollBack();
                     return back()->with('error', "Stock total insuficiente para {$product->name}. Disponible: {$totalStock}")->withInput();
                 }
 
-
-                // Lógica de Prioridad: Tienda -> Bodega
-                
-                // 1. Descontar de la Tienda
                 $stock_a_descontar_de_tienda = min($quantity, $product->stock_tienda);
                 $product->stock_tienda -= $stock_a_descontar_de_tienda;
                 $descontado_tienda = $stock_a_descontar_de_tienda;
 
                 $remaining_quantity = $quantity - $stock_a_descontar_de_tienda;
 
-                // 2. Descontar de la Bodega (si queda algo pendiente)
                 if ($remaining_quantity > 0) {
                     $stock_a_descontar_de_bodega = $remaining_quantity;
                     $product->stock_bodega -= $stock_a_descontar_de_bodega;
                     $descontado_bodega = $stock_a_descontar_de_bodega;
                 }
 
-                // Guardar los cambios de stock
                 $product->save();
-
-                }
-
-                
-
-                // 3. CREAR EL DETALLE DE LA FACTURA (InvoiceItem)
-                $invoice->items()->create([
-                    'product_id' => $product->id,
-                    'quantity' => $quantity,
-                    'price_at_sale' => $price,
-                    'line_total' => $quantity * $price,
-                    'stock_tienda_descontado' => $descontado_tienda,
-                    'stock_bodega_descontado' => $descontado_bodega,
-                ]);
             }
 
-            // 4. CONFIRMAR TRANSACCIÓN
-            DB::commit();
-
-            return redirect()->route('invoices.show', $invoice)->with('success', 'Factura registrada y stock actualizado.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Error al procesar la factura: ' . $e->getMessage())->withInput();
+            // Almacenar el item para la creación masiva
+            $processedItems[] = [
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'price_at_sale' => $price,
+                'discount_rate' => $discountRate, // ✨ ESTE ES EL CAMPO QUE FALTABA
+                'discount_amount' => $lineDiscountAmount,
+                'line_total' => $lineTotalDiscountedGross, // Total de la línea YA DESCONTADO (con ISV)
+                'stock_tienda_descontado' => $descontado_tienda,
+                'stock_bodega_descontado' => $descontado_bodega,
+            ];
         }
+
+        // 4. Crear la Cabecera (con los totales ya calculados)
+        $invoice = Invoice::create([
+            'invoice_number' => $invoiceNumber,
+            'client_name' => $request->client_name,
+            'client_id_card' => $request->client_id_card,
+            'subtotal' => $totalSubtotalSum,
+            'discount_amount' => $totalDiscountSum, // Suma de todos los descuentos de línea
+            'tax_amount' => $totalTaxAmountSum,
+            'total_amount' => $totalFinalSum,
+            'date' => now(),
+        ]);
+
+        // 5. Crear los detalles (Items)
+        $invoice->items()->createMany($processedItems);
+
+        // 6. CONFIRMAR TRANSACCIÓN
+        DB::commit();
+
+        return redirect()->route('invoices.show', $invoice)->with('success', 'Factura registrada y stock actualizado.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error al procesar la factura: ' . $e->getMessage())->withInput();
     }
+}
+
 
     public function show(Invoice $invoice)
 {

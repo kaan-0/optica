@@ -33,59 +33,49 @@
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between">
-                Productos a Facturar
-                <button type="button" class="btn btn-sm btn-info" id="add-item-btn">
-                    <i class="fa-solid fa-plus"></i> Añadir Producto
-                </button>
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between">
+                    Productos a Facturar
+                    <button type="button" class="btn btn-sm btn-info" id="add-item-btn">
+                        <i class="fa-solid fa-plus"></i> Añadir Producto
+                    </button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Producto (ID/Nombre)</th>
+                                <th width="10%">Cantidad</th>
+                                <th width="15%">Precio Unitario</th>
+                                <th width="10%">Desc. (%)</th> <th width="15%">Total Línea</th>
+                                <th width="5%">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoice-items-body">
+                            {{-- Las filas de productos irán aquí, generadas por JS --}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="card-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Producto (ID/Nombre)</th>
-                            <th width="15%">Cantidad</th>
-                            <th width="15%">Precio Unitario</th>
-                            <th width="15%">Total Línea</th>
-                            <th width="5%">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="invoice-items-body">
-                        {{-- Las filas de productos irán aquí, generadas por JS --}}
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
         {{-- Sección de Totales (Footer) --}}
-        <div class="row justify-content-end">
+<div class="row justify-content-end">
     <div class="col-md-4">
         <div class="card p-3">
-            <p>Subtotal (Antes de Descuento): <span id="subtotal-display">0.00</span></p>
+            <p>Subtotal **Bruto** (Sin Desc.): <span id="subtotal-gross-display">0.00</span></p>
 
-            {{-- Descuento por Porcentaje --}}
-            <div class="input-group mb-2">
-                <span class="input-group-text">Desc. (%)</span>
-                <input type="number" step="0.01" name="discount_rate" id="discount_rate_input" class="form-control" value="0.00" min="0" max="100">
-            </div>
+            <p>Descuento **Total:** <span id="discount-display">0.00</span></p>
             
-            <p>Descuento (Monto): <span id="discount-display">0.00</span></p>
-            
-            {{-- Campo oculto para el monto de descuento que se va a la BD --}}
             <input type="hidden" name="discount_amount" id="discount_amount_input" value="0.00">
 
             <hr>
 
-            {{-- NUEVOS CAMPOS FISCALES --}}
-            
             <p>**Base Imponible (Gravado 15%):** <span id="taxable-base-display">0.00</span></p>
             
             <p>**ISV 15%:** <span id="tax-display">0.00</span></p>
             
             <h4>Total a Pagar: <span id="total-display">0.00</span></h4>
             
-            {{-- Campos ocultos para el controlador --}}
             <input type="hidden" name="tax_amount" id="tax_amount_input" value="0.00">
             <input type="hidden" name="total_amount" id="total_amount_input" value="0.00">
         </div>
@@ -105,79 +95,99 @@
     document.addEventListener('DOMContentLoaded', function() {
         const itemBody = document.getElementById('invoice-items-body');
         const addItemBtn = document.getElementById('add-item-btn');
-        const totalAmountInput = document.getElementById('total_amount_input');
-        const totalDisplay = document.getElementById('total-display');
-        const discountRateInput = document.getElementById('discount_rate_input');
-        const discountInput = document.getElementById('discount_amount_input');
-        discountRateInput.addEventListener('input', calculateTotals);
-        discountInput.addEventListener('input', calculateTotals);
+        // NOTA: totalAmountInput y totalDisplay se mantienen, pero los siguientes deben eliminarse
+        // const discountRateInput = document.getElementById('discount_rate_input'); // ELIMINADO
+        // const discountInput = document.getElementById('discount_amount_input'); // ELIMINADO
+
+        // Eliminamos los listeners de descuento global obsoletos
+        // discountRateInput.addEventListener('input', calculateTotals);
+        // discountInput.addEventListener('input', calculateTotals);
+        
         let itemIndex = 0;
 
         // URL para la búsqueda de productos (necesaria para AJAX)
         const searchUrl = "{{ route('products.search') }}";
 
-        // --- FUNCIÓN PRINCIPAL PARA CALCULAR TOTALES CON ISV 15% ---
-function calculateTotals() {
-    let subtotal = 0;
-    
-    // 1. CALCULAR SUBTOTAL (Suma de líneas sin descuento)
-    itemBody.querySelectorAll('tr').forEach(row => {
-        const quantityInput = row.querySelector('.item-quantity');
-        const priceInput = row.querySelector('.item-price');
-        const lineTotalSpan = row.querySelector('.line-total-display');
-        
-        const quantity = parseFloat(quantityInput.value) || 0;
-        const price = parseFloat(priceInput.value) || 0;
-        const lineTotal = quantity * price;
+        // --- FUNCIÓN PRINCIPAL PARA CALCULAR TOTALES CON ISV 15% (Línea por Línea) ---
+        function calculateTotals() {
+            
+            // Totalizadores de la Factura (acumuladores)
+            let subtotalGrossSum = 0;      // 1. Suma total sin descuentos (Subtotal Bruto)
+            let totalDiscountSum = 0;       // 2. Suma total de descuentos
+            let taxableBaseSum = 0;         // 3. Suma total de Bases Imponibles (Neto sin ISV)
+            let taxAmountSum = 0;           // 4. Suma total del ISV
+            
+            const ISV_RATE = 0.15; // Tasa de Impuesto sobre Ventas
 
-        lineTotalSpan.textContent = lineTotal.toFixed(2);
-        subtotal += lineTotal;
-    });
+            // 1. CALCULAR SUBTOTALES, DESCUENTOS e ISV POR LÍNEA
+            itemBody.querySelectorAll('tr').forEach(row => {
+                const quantityInput = row.querySelector('.item-quantity');
+                const priceInput = row.querySelector('.item-price');
+                const discountRateInput = row.querySelector('.item-discount-rate'); 
+                const lineTotalSpan = row.querySelector('.line-total-display');
+                
+                const quantity = parseFloat(quantityInput.value) || 0;
+                const price = parseFloat(priceInput.value) || 0;
+                const discountRate = parseFloat(discountRateInput.value) || 0; // Tasa de descuento por ítem
 
-    // --- CÁLCULO DE DESCUENTO ---
-    const discountRateInput = document.getElementById('discount_rate_input'); 
-    const discountAmountInput = document.getElementById('discount_amount_input'); 
-    const discountDisplay = document.getElementById('discount-display');
-    const taxableBaseDisplay = document.getElementById('taxable-base-display');
-
-    const discountRate = parseFloat(discountRateInput.value) || 0;
-    
-    // Monto monetario del descuento
-    const calculatedDiscountAmount = subtotal * (discountRate / 100);
-    
-    // 2. BASE IMPONIBLE (Subtotal después de descuento)
-    let taxableBase = subtotal - calculatedDiscountAmount;
-    taxableBase = taxableBase / 1.15;
-    if (taxableBase < 0) taxableBase = 0;
-    
-    // --- CÁLCULO DE ISV (Impuesto sobre Ventas 15%) ---
-    const ISV_RATE = 0.15;
-    const taxAmount = taxableBase * ISV_RATE;
-    
-    // 3. TOTAL FINAL (Total a Pagar)
-    const grandTotal = taxableBase + taxAmount;
-    // NOTA: Esto es matemáticamente igual a: taxableBase * 1.15
-    
-    // 4. ACTUALIZAR DISPLAYS Y CAMPOS OCULTOS
-    
-    document.getElementById('subtotal-display').textContent = subtotal.toFixed(2);
-
-    // Descuento
-    discountDisplay.textContent = calculatedDiscountAmount.toFixed(2);
-    discountAmountInput.value = calculatedDiscountAmount.toFixed(2);
-    
-    // Base Imponible y ISV
-    taxableBaseDisplay.textContent = taxableBase.toFixed(2); // NUEVO DISPLAY
-    
-    document.getElementById('tax-display').textContent = taxAmount.toFixed(2); // Muestra ISV 15%
-    document.getElementById('tax_amount_input').value = taxAmount.toFixed(2); // Guarda el MONTO del ISV
-    
-    // Total Final
-    totalDisplay.textContent = grandTotal.toFixed(2);
-    totalAmountInput.value = grandTotal.toFixed(2); // Guarda el TOTAL FINAL
-}
-
-// Asegúrate de que los inputs de descuento (rate) y cantidad/precio llamen a esta función
+                // Validación de seguridad para evitar divisiones por cero o resultados negativos en cálculos fiscales
+                if (quantity <= 0 || price <= 0) {
+                     lineTotalSpan.textContent = "0.00";
+                     return; // Skip item if quantity or price is invalid
+                }
+                
+                // a. SUBTOTAL BRUTO DE LA LÍNEA (Precio Unitario * Cantidad)
+                const lineSubtotalGross = quantity * price;
+                
+                // b. DESCUENTO DE LA LÍNEA
+                const lineDiscountAmount = lineSubtotalGross * (discountRate / 100);
+                
+                // c. TOTAL DESCONTADO (Bruto, con ISV)
+                const lineTotalDiscountedGross = lineSubtotalGross - lineDiscountAmount;
+                
+                // d. BASE IMPONIBLE (NETO sin ISV)
+                // Se utiliza Math.round para evitar problemas de precisión flotante en JS antes de redondear a 2 decimales
+                const lineTaxableBase = lineTotalDiscountedGross / (1 + ISV_RATE);
+                
+                // e. ISV DE LA LÍNEA
+                const lineTaxAmount = lineTotalDiscountedGross - lineTaxableBase;
+                
+                // Acumular a los totales globales
+                subtotalGrossSum += lineSubtotalGross;
+                totalDiscountSum += lineDiscountAmount;
+                taxableBaseSum += lineTaxableBase;
+                taxAmountSum += lineTaxAmount;
+                
+                // Actualizar Display de Línea (Muestra el precio final descontado)
+                lineTotalSpan.textContent = lineTotalDiscountedGross.toFixed(2);
+            });
+            
+            // 2. CALCULAR TOTAL FINAL DE LA FACTURA (Suma de los totales ya descontados)
+            const grandTotal = subtotalGrossSum - totalDiscountSum; 
+            
+            // 3. ACTUALIZAR DISPLAYS Y CAMPOS OCULTOS
+            
+            // Subtotal Bruto (Sin Descuento)
+            document.getElementById('subtotal-gross-display').textContent = subtotalGrossSum.toFixed(2); // ID CORREGIDO
+            
+            // Descuento Total
+            document.getElementById('discount-display').textContent = totalDiscountSum.toFixed(2);
+            document.getElementById('discount_amount_input').value = totalDiscountSum.toFixed(2);
+            
+            // Base Imponible
+            document.getElementById('taxable-base-display').textContent = taxableBaseSum.toFixed(2);
+            
+            // ISV
+            document.getElementById('tax-display').textContent = taxAmountSum.toFixed(2);
+            document.getElementById('tax_amount_input').value = taxAmountSum.toFixed(2);
+            
+            // Total Final (Total a Pagar)
+            document.getElementById('total-display').textContent = grandTotal.toFixed(2);
+            // El campo oculto para el total ya está actualizado por grandTotal
+            document.getElementById('total_amount_input').value = grandTotal.toFixed(2); 
+            
+            // Nota: Se corrige la duplicidad de 'total_amount_input' en el HTML.
+        }
 
         // --- FUNCIÓN PARA BUSCAR PRODUCTOS (AJAX) ---
         async function searchProducts(query, dropdown) {
@@ -199,29 +209,28 @@ function calculateTotals() {
                     item.textContent = `[${product.product_code}] ${product.name}`;
                     
                     // Al hacer clic, se selecciona el producto
-                    // DESPUÉS (CÓDIGO CORREGIDO)
-                        item.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            const row = dropdown.closest('tr');
-                            
-                            // Setear los valores en los campos de la fila
-                            const priceValue = product.precio_venta.toFixed(2);
-                            
-                            row.querySelector('.item-search-input').value = product.name;
-                            row.querySelector('.item-id-input').value = product.id;
-                            
-                            // 1. Asigna al campo visible
-                            row.querySelector('.item-price').value = priceValue; 
-                            
-                            // 2. ASIGNA DIRECTAMENTE AL CAMPO OCULTO (¡Esta es la corrección!)
-                            row.querySelector('.item-price-hidden').value = priceValue; 
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const row = dropdown.closest('tr');
+                        
+                        // Setear los valores en los campos de la fila
+                        const priceValue = product.precio_venta.toFixed(2);
+                        
+                        row.querySelector('.item-search-input').value = product.name;
+                        row.querySelector('.item-id-input').value = product.id;
+                        
+                        // 1. Asigna al campo visible
+                        row.querySelector('.item-price').value = priceValue; 
+                        
+                        // 2. ASIGNA DIRECTAMENTE AL CAMPO OCULTO 
+                        row.querySelector('.item-price-hidden').value = priceValue; 
 
-                            // Ocultar el dropdown
-                            dropdown.innerHTML = '';
-                            dropdown.style.display = 'none'; 
-                            
-                            calculateTotals(); 
-                        });
+                        // Ocultar el dropdown
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'none'; 
+                        
+                        calculateTotals(); 
+                    });
                     dropdown.appendChild(item);
                 });
                 dropdown.style.display = products.length > 0 ? 'block' : 'none';
@@ -251,6 +260,11 @@ function calculateTotals() {
                 <td>
                     <input type="number" step="0.01" class="form-control item-price" value="0.00" readonly>
                 </td>
+                
+                <td>
+                    <input type="number" name="items[${itemIndex}][discount_rate]" class="form-control item-discount-rate" value="0.00" min="0" max="100" step="0.01">
+                </td>
+
                 <td>
                     L <span class="line-total-display">0.00</span>
                 </td>
@@ -263,8 +277,8 @@ function calculateTotals() {
 
             itemBody.appendChild(newRow);
 
-            // 1. Manejo de Eventos de la Fila
-            newRow.querySelectorAll('.item-quantity, .item-price').forEach(input => {
+            // 1. Manejo de Eventos de la Fila (Escuchan quantity, price y discount_rate)
+            newRow.querySelectorAll('.item-quantity, .item-price, .item-discount-rate').forEach(input => {
                 input.addEventListener('input', calculateTotals);
             });
             
@@ -291,7 +305,7 @@ function calculateTotals() {
 
             searchInput.addEventListener('focus', function() {
                 // Muestra la lista al enfocar, si hay texto
-                 searchProducts(this.value, dropdown);
+                searchProducts(this.value, dropdown);
             });
             
             // Ocultar dropdown al hacer clic fuera
