@@ -14,15 +14,12 @@ class Patient extends Model
      * Estos campos pueden ser asignados masivamente (Mass Assignment)
      * a través de los métodos create() o update().
      *
-     * IMPORTANT: Se han incluido todos los campos del formulario
-     * incluyendo el nuevo 'identity_number'.
-     *
      * @var array<int, string>
      */
     protected $fillable = [
         'first_name',
         'last_name',
-        'identity_number', // ¡NUEVO CAMPO AGREGADO!
+        'identity_number',
         'birth_date',
         'gender',
         'phone_number',
@@ -32,10 +29,11 @@ class Patient extends Model
     ];
 
     /**
-     * Alternativa: Usar $guarded = []
-     * Si prefieres permitir la asignación masiva de CUALQUIER campo (menos los que no quieres),
-     * puedes usar:
-     * protected $guarded = [];
-     * pero es menos seguro y no lo recomiendo.
+     * Define la relación uno a muchos con los expedientes médicos (visitas).
+     * Un paciente puede tener muchos Medical Records.
      */
+    public function medicalRecords()
+    {
+        return $this->hasMany(MedicalRecord::class);
+    }
 }
