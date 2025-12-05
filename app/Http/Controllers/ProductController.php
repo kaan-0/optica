@@ -148,10 +148,9 @@ public function index(Request $request)
      */
     public function show(Product $product): View
     {
-        // 1️⃣ Cargar la relación 'categoria' y el detalle específico
+        
         $product = $this->loadProductDetails($product);
 
-        // La vista 'show' usará estas relaciones para mostrar los datos
         return view('products.show', compact('product'));
     }
 
@@ -162,9 +161,10 @@ public function index(Request $request)
     {
         // 1️⃣ Cargar la relación 'categoria' y el detalle específico
         $product = $this->loadProductDetails($product);
+        $categorias = Category::all();
 
         // La vista 'edit' usará estas relaciones para precargar los campos
-        return view('products.edit', compact('product'));
+        return view('products.edit', compact('product','categorias'));
     }
 
     /**

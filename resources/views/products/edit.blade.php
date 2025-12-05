@@ -57,14 +57,16 @@
                 <strong>Categoría:</strong>
                 <select name="id_categoria" id="id_categoria" class="form-control" required>
                     <option value="">Seleccione categoría</option>
-                    {{-- Usa el helper 'selected' para precargar la opción correcta --}}
-                    <option value="1" {{ $product->id_categoria == 1 ? 'selected' : '' }}>Aros</option>
-                    <option value="2" {{ $product->id_categoria == 2 ? 'selected' : '' }}>Lentes</option>
-                    <option value="3" {{ $product->id_categoria == 3 ? 'selected' : '' }}>Lentes terminados</option>
-                    <option value="4" {{ $product->id_categoria == 4 ? 'selected' : '' }}>Accesorios</option>
-                    <option value="5" {{ $product->id_categoria == 5 ? 'selected' : '' }}>Soluciones de limpieza</option>
-                    <option value="6" {{ $product->id_categoria == 6 ? 'selected' : '' }}>Estuches</option>
+                    @foreach ($categorias as $categoria)
+                    <option value="{{ $categoria->id }}" 
+                    {{ old('id_categoria') == $categoria->id ? 'selected' : '' }}>
+                    {{ $categoria->nombre }}
+                    </option>
+                     @endforeach
                 </select>
+                @error('id_categoria')
+                    <div class="alert alert-danger mt-1">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
